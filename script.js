@@ -43,27 +43,6 @@ const countriesContainer = document.querySelector('.countries');
 
 ////////////////////////////////////////////////////
 
-const renderCountry = function (data, className = '') {
-  const html = `
-        <article class="country ${className}">
-          <img class="country__img" src="${data.flag}" />
-          <div class="country__data">
-            <h3 class="country__name">${data.name}</h3>
-            <h4 class="country__region">${data.region}</h4>
-            <p class="country__row"><span>👫</span>${(
-              +data.population / 1000000
-            ).toFixed(1)}</p>
-            <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
-            <p class="country__row"><span>💰</span>${
-              data.currencies[0].name
-            }</p>
-          </div>
-        </article>`;
-
-  countriesContainer.insertAdjacentHTML('beforeend', html);
-  countriesContainer.style.opacity = 1;
-};
-
 ///////////////////////////////////////////////////////
 
 // const getCountryAndNeighbour = function (country) {
@@ -231,13 +210,6 @@ const renderCountry = function (data, className = '') {
 //   countriesContainer.style.opacity = 1;
 // };
 
-const handleStatus = function (res) {
-  console.log(res);
-
-  if (!res.ok) throw new Error(`Failed to fetch, status: ${res.status}`);
-  return res.json();
-};
-
 // const whereAmI = function (lat, lng) {
 //   fetch(
 //     `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
@@ -307,43 +279,112 @@ const handleStatus = function (res) {
 // Promise.resolve('abc').then(res => console.log(res));
 // Promise.reject(new Error('No resolved')).catch(err => console.error(err));
 
-const getPosition = function () {
-  return new Promise(function (resolve, reject) {
-    // navigator.geolocation.getCurrentPosition(
-    //   position => resolve(position),
-    //   err => reject(err)
-    // );
-    navigator.geolocation.getCurrentPosition(resolve, reject);
+//////////////////////////////////////////////////
+
+// const renderCountry = function (data, className = '') {
+//   const html = `
+//         <article class="country ${className}">
+//           <img class="country__img" src="${data.flag}" />
+//           <div class="country__data">
+//             <h3 class="country__name">${data.name}</h3>
+//             <h4 class="country__region">${data.region}</h4>
+//             <p class="country__row"><span>👫</span>${(
+//               +data.population / 1000000
+//             ).toFixed(1)}</p>
+//             <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
+//             <p class="country__row"><span>💰</span>${
+//               data.currencies[0].name
+//             }</p>
+//           </div>
+//         </article>`;
+
+//   countriesContainer.insertAdjacentHTML('beforeend', html);
+//   countriesContainer.style.opacity = 1;
+// };
+
+// const handleStatus = function (res) {
+//   console.log(res);
+
+//   if (!res.ok) throw new Error(`Failed to fetch, status: ${res.status}`);
+//   return res.json();
+// };
+
+// const getPosition = function () {
+//   return new Promise(function (resolve, reject) {
+//     // navigator.geolocation.getCurrentPosition(
+//     //   position => resolve(position),
+//     //   err => reject(err)
+//     // );
+//     navigator.geolocation.getCurrentPosition(resolve, reject);
+//   });
+// };
+
+// // getPosition().then(pos => console.log(pos));
+
+// const whereAmI = function () {
+//   getPosition()
+//     .then(pos => {
+//       const { latitude: lat, longitude: lng } = pos.coords;
+//       return fetch(
+//         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
+//       );
+//     })
+//     .then(res => handleStatus(res))
+//     .then(data => {
+//       if (!data) throw new Error('Country not found');
+//       const countryName = data.countryName;
+//       const city = data.city;
+//       console.log(data);
+
+//       console.log(`You are in ${city}, ${countryName}`);
+//       return fetch(`https://restcountries.com/v2/name/${countryName}`);
+//     })
+//     .then(res => handleStatus(res))
+//     .then(data => {
+//       if (!data) throw new Error('Country not found');
+//       console.log(data);
+//       renderCountry(data[0]);
+//     })
+//     .catch(err => console.error(`Error says: ${err}`));
+// };
+
+// btn.addEventListener('click', whereAmI);
+
+/////////////////////////////////////////////////////
+
+// CHALLENGE 2
+
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
   });
 };
 
-// getPosition().then(pos => console.log(pos));
+const imagesContainer = document.querySelector('.images');
 
-const whereAmI = function () {
-  getPosition()
-    .then(pos => {
-      const { latitude: lat, longitude: lng } = pos.coords;
-      return fetch(
-        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
-      );
-    })
-    .then(res => handleStatus(res))
-    .then(data => {
-      if (!data) throw new Error('Country not found');
-      const countryName = data.countryName;
-      const city = data.city;
-      console.log(data);
-
-      console.log(`You are in ${city}, ${countryName}`);
-      return fetch(`https://restcountries.com/v2/name/${countryName}`);
-    })
-    .then(res => handleStatus(res))
-    .then(data => {
-      if (!data) throw new Error('Country not found');
-      console.log(data);
-      renderCountry(data[0]);
-    })
-    .catch(err => console.error(`Error says: ${err}`));
+const createImage = function (imgPath) {
+  return new Promise(function (resolve, reject) {
+    const img = document.createElement('img');
+    img.src = imgPath;
+    img.addEventListener('load', function () {
+      imagesContainer.append(img);
+      resolve(img);
+    });
+    img.addEventListener('error', function () {
+      reject('Cant load image', imgPath);
+    });
+  });
 };
 
-btn.addEventListener('click', whereAmI);
+createImage('img/img-1.jpg')
+  .then(img => {
+    return wait(2).then(() => {
+      img.style.display = 'none';
+      return createImage('img/img-2.jpg');
+    });
+  })
+  .then(img => {
+    return wait(2).then(() => {
+      img.style.display = 'none';
+    });
+  });
