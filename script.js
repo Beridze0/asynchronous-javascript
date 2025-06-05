@@ -187,28 +187,28 @@ const countriesContainer = document.querySelector('.countries');
 
 // TEST COORDINATES 1: 528.508, 13.381
 
-// const renderCountry = function (data, className = '') {
-//   const html = `
-//         <article class="country ${className}">
-//           <img class="country__img" src="${data.flag}" />
-//           <div class="country__data">
-//             <h3 class="country__name">${data.name}</h3>
-//             <h4 class="country__region">${data.region}</h4>
-//             <p class="country__row"><span>👫</span>${(
-//               +data.population / 1000000
-//             ).toFixed(1)}</p>
-//             <p class="country__row"><span>🗣️</span>${
-//               data.languages?.[0].name
-//             }</p>
-//             <p class="country__row"><span>💰</span>${
-//               data.currencies[0].name
-//             }</p>
-//           </div>
-//         </article>`;
+const renderCountry = function (data, className = '') {
+  const html = `
+        <article class="country ${className}">
+          <img class="country__img" src="${data.flag}" />
+          <div class="country__data">
+            <h3 class="country__name">${data.name}</h3>
+            <h4 class="country__region">${data.region}</h4>
+            <p class="country__row"><span>👫</span>${(
+              +data.population / 1000000
+            ).toFixed(1)}</p>
+            <p class="country__row"><span>🗣️</span>${
+              data.languages?.[0].name
+            }</p>
+            <p class="country__row"><span>💰</span>${
+              data.currencies[0].name
+            }</p>
+          </div>
+        </article>`;
 
-//   countriesContainer.insertAdjacentHTML('beforeend', html);
-//   countriesContainer.style.opacity = 1;
-// };
+  countriesContainer.insertAdjacentHTML('beforeend', html);
+  countriesContainer.style.opacity = 1;
+};
 
 // const whereAmI = function (lat, lng) {
 //   fetch(
@@ -354,37 +354,71 @@ const countriesContainer = document.querySelector('.countries');
 
 // CHALLENGE 2
 
-const wait = function (seconds) {
-  return new Promise(function (resolve) {
-    setTimeout(resolve, seconds * 1000);
-  });
-};
+// const wait = function (seconds) {
+//   return new Promise(function (resolve) {
+//     setTimeout(resolve, seconds * 1000);
+//   });
+// };
 
-const imagesContainer = document.querySelector('.images');
+// const imagesContainer = document.querySelector('.images');
 
-const createImage = function (imgPath) {
+// const createImage = function (imgPath) {
+//   return new Promise(function (resolve, reject) {
+//     const img = document.createElement('img');
+//     img.src = imgPath;
+//     img.addEventListener('load', function () {
+//       imagesContainer.append(img);
+//       resolve(img);
+//     });
+//     img.addEventListener('error', function () {
+//       reject(new Error('image not found'));
+//     });
+//   });
+// };
+
+// createImage('img/img-1.jpg')
+//   .then(img => {
+//     return wait(2).then(() => {
+//       img.style.display = 'none';
+//       return createImage('img/img-2.jpg');
+//     });
+//   })
+//   .then(img => {
+//     return wait(2).then(() => {
+//       img.style.display = 'none';
+//     });
+//   })
+//   .catch(err => console.error(err));
+
+const getPosition = function () {
   return new Promise(function (resolve, reject) {
-    const img = document.createElement('img');
-    img.src = imgPath;
-    img.addEventListener('load', function () {
-      imagesContainer.append(img);
-      resolve(img);
-    });
-    img.addEventListener('error', function () {
-      reject('Cant load image', imgPath);
-    });
+    // navigator.geolocation.getCurrentPosition(
+    //   position => resolve(position),
+    //   err => reject(err)
+    // );
+    navigator.geolocation.getCurrentPosition(resolve, reject);
   });
 };
 
-createImage('img/img-1.jpg')
-  .then(img => {
-    return wait(2).then(() => {
-      img.style.display = 'none';
-      return createImage('img/img-2.jpg');
-    });
-  })
-  .then(img => {
-    return wait(2).then(() => {
-      img.style.display = 'none';
-    });
-  });
+const whereAmI = async function (country) {
+  // Geolocation
+  const pos = await getPosition();
+  const { latitude: lat, longitude: lng } = pos.coords;
+
+  // Reverse geocoding
+  const resGeo = await fetch(
+    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
+  );
+  const dataGeo = await resGeo.json();
+
+  // Country data
+  const res = await fetch(
+    `https://restcountries.com/v2/name/${dataGeo.countryName}`
+  );
+  const data = await res.json();
+  console.log(data);
+  renderCountry(data[0]);
+};
+
+whereAmI();
+console.log('FIRST');
