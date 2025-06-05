@@ -200,60 +200,76 @@ const countriesContainer = document.querySelector('.countries');
 // });
 // getCountryData('dasdnasasd');
 
-// challenge 1
+///////////////////////////////////////////
+/////////////////////////////////////////////////
+// CHALLENGE 1
+
 // https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}
 
 // TEST COORDINATES 1: 528.508, 13.381
 
-const renderCountry = function (data, className = '') {
-  const html = `
-        <article class="country ${className}">
-          <img class="country__img" src="${data.flag}" />
-          <div class="country__data">
-            <h3 class="country__name">${data.name}</h3>
-            <h4 class="country__region">${data.region}</h4>
-            <p class="country__row"><span>👫</span>${(
-              +data.population / 1000000
-            ).toFixed(1)}</p>
-            <p class="country__row"><span>🗣️</span>${
-              data.languages?.[0].name
-            }</p>
-            <p class="country__row"><span>💰</span>${
-              data.currencies[0].name
-            }</p>
-          </div>
-        </article>`;
+// const renderCountry = function (data, className = '') {
+//   const html = `
+//         <article class="country ${className}">
+//           <img class="country__img" src="${data.flag}" />
+//           <div class="country__data">
+//             <h3 class="country__name">${data.name}</h3>
+//             <h4 class="country__region">${data.region}</h4>
+//             <p class="country__row"><span>👫</span>${(
+//               +data.population / 1000000
+//             ).toFixed(1)}</p>
+//             <p class="country__row"><span>🗣️</span>${
+//               data.languages?.[0].name
+//             }</p>
+//             <p class="country__row"><span>💰</span>${
+//               data.currencies[0].name
+//             }</p>
+//           </div>
+//         </article>`;
 
-  countriesContainer.insertAdjacentHTML('beforeend', html);
-  countriesContainer.style.opacity = 1;
-};
+//   countriesContainer.insertAdjacentHTML('beforeend', html);
+//   countriesContainer.style.opacity = 1;
+// };
 
-const handleStatus = function (res) {
-  if (!res.ok) throw new Error(`Failed to fetch, status: ${res.status}`);
-  return res.json();
-};
+// const handleStatus = function (res) {
+//   console.log(res);
 
-const whereAmI = function (lat, lng) {
-  fetch(
-    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
-  )
-    .then(res => handleStatus(res))
-    .then(data => {
-      if (!data) throw new Error('Country not found');
-      const countryName = data.countryName;
-      const city = data.city;
-      console.log(data);
+//   if (!res.ok) throw new Error(`Failed to fetch, status: ${res.status}`);
+//   return res.json();
+// };
 
-      console.log(`You are in ${city}, ${countryName}`);
-      return fetch(`https://restcountries.com/v2/name/${countryName}`);
-    })
-    .then(res => handleStatus(res))
-    .then(data => {
-      if (!data) throw new Error('Country not found');
-      console.log(data);
-      renderCountry(data[0]);
-    })
-    .catch(err => console.error(`Error says: ${err}`));
-};
+// const whereAmI = function (lat, lng) {
+//   fetch(
+//     `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
+//   )
+//     .then(res => handleStatus(res))
+//     .then(data => {
+//       if (!data) throw new Error('Country not found');
+//       const countryName = data.countryName;
+//       const city = data.city;
+//       console.log(data);
 
-whereAmI(52.508, 13.381);
+//       console.log(`You are in ${city}, ${countryName}`);
+//       return fetch(`https://restcountries.com/v2/name/${countryName}`);
+//     })
+//     .then(res => handleStatus(res))
+//     .then(data => {
+//       if (!data) throw new Error('Country not found');
+//       console.log(data);
+//       renderCountry(data[0]);
+//     })
+//     .catch(err => console.error(`Error says: ${err}`));
+// };
+
+// whereAmI(52.508, 13.381);
+
+console.log('Test start'); // 1
+setTimeout(() => console.log('0 sec timer'), 0); // 4
+Promise.resolve('Resolved promise 1').then(res => console.log(res)); // 3
+
+Promise.resolve('Resolved promise 2').then(res => {
+  for (let i = 0; i < 1000000000; i++) {}
+  console.log(res);
+});
+
+console.log('test end'); // 2
