@@ -43,26 +43,26 @@ const countriesContainer = document.querySelector('.countries');
 
 ////////////////////////////////////////////////////
 
-// const renderCountry = function (data, className = '') {
-//   const html = `
-//         <article class="country ${className}">
-//           <img class="country__img" src="${data.flag}" />
-//           <div class="country__data">
-//             <h3 class="country__name">${data.name}</h3>
-//             <h4 class="country__region">${data.region}</h4>
-//             <p class="country__row"><span>👫</span>${(
-//               +data.population / 1000000
-//             ).toFixed(1)}</p>
-//             <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
-//             <p class="country__row"><span>💰</span>${
-//               data.currencies[0].name
-//             }</p>
-//           </div>
-//         </article>`;
+const renderCountry = function (data, className = '') {
+  const html = `
+        <article class="country ${className}">
+          <img class="country__img" src="${data.flag}" />
+          <div class="country__data">
+            <h3 class="country__name">${data.name}</h3>
+            <h4 class="country__region">${data.region}</h4>
+            <p class="country__row"><span>👫</span>${(
+              +data.population / 1000000
+            ).toFixed(1)}</p>
+            <p class="country__row"><span>🗣️</span>${data.languages[0].name}</p>
+            <p class="country__row"><span>💰</span>${
+              data.currencies[0].name
+            }</p>
+          </div>
+        </article>`;
 
-//   countriesContainer.insertAdjacentHTML('beforeend', html);
-// countriesContainer.style.opacity = 1;
-// };
+  countriesContainer.insertAdjacentHTML('beforeend', html);
+  countriesContainer.style.opacity = 1;
+};
 
 ///////////////////////////////////////////////////////
 
@@ -231,12 +231,12 @@ const countriesContainer = document.querySelector('.countries');
 //   countriesContainer.style.opacity = 1;
 // };
 
-// const handleStatus = function (res) {
-//   console.log(res);
+const handleStatus = function (res) {
+  console.log(res);
 
-//   if (!res.ok) throw new Error(`Failed to fetch, status: ${res.status}`);
-//   return res.json();
-// };
+  if (!res.ok) throw new Error(`Failed to fetch, status: ${res.status}`);
+  return res.json();
+};
 
 // const whereAmI = function (lat, lng) {
 //   fetch(
@@ -263,13 +263,87 @@ const countriesContainer = document.querySelector('.countries');
 
 // whereAmI(52.508, 13.381);
 
-console.log('Test start'); // 1
-setTimeout(() => console.log('0 sec timer'), 0); // 4
-Promise.resolve('Resolved promise 1').then(res => console.log(res)); // 3
+// console.log('Test start'); // 1
+// setTimeout(() => console.log('0 sec timer'), 0); // 4
+// Promise.resolve('Resolved promise 1').then(res => console.log(res)); // 3
 
-Promise.resolve('Resolved promise 2').then(res => {
-  for (let i = 0; i < 1000000000; i++) {}
-  console.log(res);
-});
+// Promise.resolve('Resolved promise 2').then(res => {
+//   for (let i = 0; i < 1000000000; i++) {}
+//   console.log(res);
+// });
 
-console.log('test end'); // 2
+// console.log('test end'); // 2
+
+// const lotteryPromise = new Promise(function (resolve, reject) {
+//   console.log('Lottery draw is happening');
+
+//   setTimeout(function () {
+//     if (Math.random() >= 0.5) {
+//       resolve('You WIN !');
+//     } else {
+//       reject(new Error('You lost your money'));
+//     }
+//   }, 2000);
+// });
+
+// lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+
+// // Promisifying setTimeout
+// const wait = function (seconds) {
+//   return new Promise(function (resolve) {
+//     setTimeout(resolve, seconds * 1000);
+//   });
+// };
+
+// wait(2)
+//   .then(res => {
+//     console.log(res); // undefined
+
+//     console.log('I waited for 2 seconds');
+//     return wait(1);
+//   })
+//   .then(() => console.log('I waited for 1 seconds'));
+
+// Promise.resolve('abc').then(res => console.log(res));
+// Promise.reject(new Error('No resolved')).catch(err => console.error(err));
+
+const getPosition = function () {
+  return new Promise(function (resolve, reject) {
+    // navigator.geolocation.getCurrentPosition(
+    //   position => resolve(position),
+    //   err => reject(err)
+    // );
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+
+// getPosition().then(pos => console.log(pos));
+
+const whereAmI = function () {
+  getPosition()
+    .then(pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      return fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
+      );
+    })
+    .then(res => handleStatus(res))
+    .then(data => {
+      if (!data) throw new Error('Country not found');
+      const countryName = data.countryName;
+      const city = data.city;
+      console.log(data);
+
+      console.log(`You are in ${city}, ${countryName}`);
+      return fetch(`https://restcountries.com/v2/name/${countryName}`);
+    })
+    .then(res => handleStatus(res))
+    .then(data => {
+      if (!data) throw new Error('Country not found');
+      console.log(data);
+      renderCountry(data[0]);
+    })
+    .catch(err => console.error(`Error says: ${err}`));
+};
+
+btn.addEventListener('click', whereAmI);
